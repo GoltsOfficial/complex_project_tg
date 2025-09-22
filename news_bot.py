@@ -23,10 +23,14 @@ SEND_INTERVAL = 60
 # ====================== Импорт команд ======================
 from commands.add_rss import add_rss_handler
 from commands.list_rss import list_rss_handler
-from commands.edit_rss import edit_rss_handler
+from commands.edit_rss import edit_rss_handler, edit_rss_callback_handler, edit_rss_apply_handler
 from commands.remove_rss import remove_rss_handler
 
 # ====================== Фоновые задачи ======================
+@dp.callback_query()
+async def all_callbacks(callback: types.CallbackQuery):
+    await edit_rss_callback_handler(callback, rss_feeds, user_states)
+
 async def fetch_feeds():
     while True:
         for feed in rss_feeds:
@@ -61,7 +65,11 @@ async def route_message(message: types.Message):
             await add_rss_handler(message, rss_feeds, user_states)
             return
         elif mode == "edit":
-            await edit_rss_handler(message, rss_feeds, user_states)
+            state = user_states[chat_id]
+            if state["step"] == 2:
+                await edit_rss_apply_handler(message, rss_feeds, user_states)
+            else:
+                await edit_rss_handler(message, rss_feeds, user_states)
             return
         elif mode == "remove":
             await remove_rss_handler(message, rss_feeds, user_states)

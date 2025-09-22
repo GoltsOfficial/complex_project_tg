@@ -23,14 +23,15 @@ SEND_INTERVAL = 60
 # ====================== Импорт команд ======================
 from commands.add_rss import add_rss_handler
 from commands.list_rss import list_rss_handler
-from commands.edit_rss import edit_rss_handler, edit_rss_callback_handler, edit_rss_apply_handler
+from commands.edit_rss import edit_rss_handler
 from commands.remove_rss import remove_rss_handler
 
-# ====================== Фоновые задачи ======================
+# ====================== Callback handler для кнопок ======================
 @dp.callback_query()
 async def all_callbacks(callback: types.CallbackQuery):
     await edit_rss_callback_handler(callback, rss_feeds, user_states)
 
+# ====================== Фоновые задачи ======================
 async def fetch_feeds():
     while True:
         for feed in rss_feeds:
@@ -61,14 +62,16 @@ async def route_message(message: types.Message):
     # ------------------ Проверка интерактива ------------------
     if chat_id in user_states:
         mode = user_states[chat_id]["mode"]
+        state = user_states[chat_id]
         if mode == "add":
             await add_rss_handler(message, rss_feeds, user_states)
             return
         elif mode == "edit":
-            state = user_states[chat_id]
             if state["step"] == 2:
+                # Шаг 2 — ввод нового значения
                 await edit_rss_apply_handler(message, rss_feeds, user_states)
             else:
+                # Шаг 0 — ввод номера
                 await edit_rss_handler(message, rss_feeds, user_states)
             return
         elif mode == "remove":

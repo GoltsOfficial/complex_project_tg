@@ -91,6 +91,7 @@ async def edit_rss_callback_handler(callback_query: CallbackQuery, rss_feeds, us
 # Дополнительный хендлер для обработки ввода новых значений
 async def handle_edit_input(message: Message, user_states, rss_feeds):
     chat_id = message.chat.id
+    text = message.text.strip()
 
     if chat_id not in user_states:
         return False
@@ -100,7 +101,6 @@ async def handle_edit_input(message: Message, user_states, rss_feeds):
     if state.get("step") == 3:  # Редактирование поля
         field = state.get("editing_field")
         index = state.get("selected_index")
-        text = message.text.strip()
 
         if field and index is not None and 0 <= index < len(rss_feeds):
             if field == "interval":

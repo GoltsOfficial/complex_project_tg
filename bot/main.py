@@ -2,6 +2,7 @@ import os
 import asyncio
 import feedparser
 from aiogram import Bot, Dispatcher
+from aiogram.client.default import DefaultBotProperties
 from dotenv import load_dotenv
 from bot.handlers import handle_message
 from bot.db.database import get_all_feeds, seen_links, news_queue, get_all_ads, decrement_ad_view
@@ -11,7 +12,7 @@ load_dotenv()
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 CHANNEL_ID = int(os.getenv("CHANNEL_ID"))
 
-bot = Bot(token=BOT_TOKEN, parse_mode="HTML")
+bot = Bot(token=BOT_TOKEN, default=DefaultBotProperties(parse_mode="HTML"))
 dp = Dispatcher()
 
 dp.message.register(handle_message)
@@ -54,7 +55,14 @@ async def post_news():
         for ad in ads:
             news_queue.append({"type": "ad", "entry": ad})
 
-        await asyncio.sleep(SEND_INTERVAL)
+        # вместо SEND_INTERVAL берём интервал из базы
+        feeds = get_all_feeds()
+        if feeds:
+            # берём минимальный интервал среди всех RSS, чтобы проверять чаще
+            interval_minutes = min(f["interval"] for f in feeds)
+        else:
+            interval_minutes = 1  # дефолтная задержка
+        await asyncio.sleep(interval_minutes * 60)  # переводим в секунды
 
 # ====================== Запуск ======================
 async def main():

@@ -74,3 +74,11 @@ def decrement_ad_view(ad_id):
     c.execute("DELETE FROM ads WHERE views <= 0")
     conn.commit()
     conn.close()
+
+# ===== Ads =====
+def update_ad(ad_id, new_text):
+    conn = sqlite3.connect('rss.db')
+    c = conn.cursor()
+    c.execute("UPDATE ads SET text = ? WHERE id = ?", (new_text, ad_id))
+    conn.commit()
+    conn.close()

@@ -2,11 +2,20 @@ import os
 import asyncio
 import feedparser
 import time
+import sys
+
+# Добавляем родительскую директорию в Python path
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(current_dir)
+sys.path.append(parent_dir)
+
 from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.filters import Command
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from dotenv import load_dotenv
+
+# Теперь импортируем из пакета bot
 from bot.handlers import cmd_start, cmd_help, handle_message, handle_callback
 from bot.db.database import (
     get_all_feeds, get_all_ads, decrement_ad_view,
@@ -15,7 +24,15 @@ from bot.db.database import (
 
 load_dotenv()
 BOT_TOKEN = os.getenv("BOT_TOKEN")
-CHANNEL_ID = int(os.getenv("CHANNEL_ID"))
+CHANNEL_ID = os.getenv("CHANNEL_ID")
+
+# Проверяем наличие переменных окружения
+if not BOT_TOKEN:
+    raise ValueError("BOT_TOKEN not found in environment variables")
+if not CHANNEL_ID:
+    raise ValueError("CHANNEL_ID not found in environment variables")
+
+CHANNEL_ID = int(CHANNEL_ID)
 
 bot = Bot(token=BOT_TOKEN, default=DefaultBotProperties(parse_mode="HTML"))
 dp = Dispatcher()

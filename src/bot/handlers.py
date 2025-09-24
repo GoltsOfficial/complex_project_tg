@@ -1,12 +1,11 @@
 # bot/handlers.py
 from aiogram import types
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
-from aiogram.filters import Command
-from bot.db.database import (
-    add_feed, get_all_feeds, update_feed, delete_feed,
+from src.bot.db.database import (
+    add_feed, get_all_feeds, delete_feed,
     add_ad, get_all_ads, decrement_ad_view
 )
-from bot.states import user_states
+from src.bot.states import user_states
 
 
 # ====================== КЛАВИАТУРЫ ======================

@@ -16,8 +16,8 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from dotenv import load_dotenv
 
 # Теперь импортируем из пакета bot
-from bot.handlers import cmd_start, cmd_help, handle_message, handle_callback
-from bot.db.database import (
+from handlers import cmd_start, cmd_help, handle_message, handle_callback
+from db.database import (
     get_all_feeds, get_all_ads, decrement_ad_view,
     update_feed_last_posted, update_ad_last_posted, seen_links
 )

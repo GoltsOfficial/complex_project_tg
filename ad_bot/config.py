@@ -1,6 +1,8 @@
-# config.py
-TOKEN = "8222866315:AAFkZW560q7bkQkRQsto5GA6FP4JSihHNbE"         # токен от BotFather
-PROVIDER_TOKEN = "1744374395:TEST:3e689d9dea8c18ad5daf"    # токен провайдера (PayMaster) через BotFather
-CURRENCY = "RUB"
-PRICE_PER_MONTH_RUB = 500                # цена за 1 месяц в рублях
-DATABASE_PATH = "payments.db"
+# ad_bot/config.py
+import os
+
+TOKEN = os.getenv("AD_BOT_TOKEN")  # обязательна
+PROVIDER_TOKEN = os.getenv("AD_PROVIDER_TOKEN", "")  # провайдер (может быть тестовый)
+CURRENCY = os.getenv("AD_CURRENCY", "RUB")
+PRICE_PER_MONTH_RUB = int(os.getenv("AD_PRICE_PER_MONTH_RUB", "500"))
+DATABASE_PATH = os.getenv("AD_DATABASE_PATH", "payments.db")

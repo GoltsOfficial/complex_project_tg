@@ -1,13 +1,14 @@
+# В начале news_bot/main.py исправьте:
 import os
 import asyncio
 import feedparser
 import time
 import sys
 
-# Добавляем родительскую директорию в Python path
-current_dir = os.path.dirname(os.path.abspath(__file__))
-parent_dir = os.path.dirname(current_dir)
-sys.path.append(parent_dir)
+# Уберите эти строки, они не нужны:
+# current_dir = os.path.dirname(os.path.abspath(__file__))
+# parent_dir = os.path.dirname(current_dir)
+# sys.path.append(parent_dir)
 
 from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
@@ -15,12 +16,14 @@ from aiogram.filters import Command
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from dotenv import load_dotenv
 
-# Теперь импортируем из пакета bot
-from handlers import cmd_start, cmd_help, handle_message, handle_callback
-from db.database import (
+# Исправьте импорты на абсолютные
+from news_bot.handlers import cmd_start, cmd_help, handle_message, handle_callback
+from news_bot.db.database import (
     get_all_feeds, get_all_ads, decrement_ad_view,
     update_feed_last_posted, update_ad_last_posted, seen_links
 )
+
+# ... остальной код без изменений ...
 
 load_dotenv()
 BOT_TOKEN = os.getenv("BOT_TOKEN")

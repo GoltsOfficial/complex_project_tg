@@ -1,4 +1,4 @@
-# handlers.py
+# ad_bot/handlers.py
 import logging
 import json
 from aiogram import F
@@ -9,11 +9,12 @@ from aiogram.types import (
 )
 from aiogram.methods import AnswerPreCheckoutQuery
 
-from loader import dp, bot
-from config import PROVIDER_TOKEN, CURRENCY, PRICE_PER_MONTH_RUB
-from models import Order, init_db, db
+# относительные импорты
+from .loader import dp, bot
+from .config import PROVIDER_TOKEN, CURRENCY, PRICE_PER_MONTH_RUB
+from .models import Order, init_db, db
 
-
+# --- далее ваш существующий код без изменений ---
 # клавиатура с Web App кнопкой
 def get_kbd():
     return InlineKeyboardMarkup(inline_keyboard=[

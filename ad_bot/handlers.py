@@ -19,7 +19,7 @@ def get_kbd():
     return InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(
             text="🛒 Открыть магазин",
-            web_app=WebAppInfo(url="https://ваш-username.github.io")
+            web_app=WebAppInfo(url="https://goltsofficial.github.io/webpage_tg_payment/")
         )],
         [InlineKeyboardButton(text="Купить подписку 1 мес", callback_data="buy_1")],
         [InlineKeyboardButton(text="Купить подписку 3 мес", callback_data="buy_3")],

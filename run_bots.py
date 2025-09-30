@@ -2,43 +2,72 @@
 import asyncio
 import logging
 import os
+import sys
 
-# импортируем пакеты — при импорте хэндлеры зарегистрируются
-import ad_bot.handlers as _ad_handlers  # noqa: F401 — регистрирует хэндлеры
-from ad_bot.models import init_db as init_ad_db
+# Добавляем пути для импортов
+sys.path.append(os.path.dirname(__file__))
 
-import news_bot.main as news_main  # содержит bot, dp, фоновые задачи и registered handlers
-# news_main уже регистрирует handlers при импорте
-
-# убедимся, что news_bot.db.init / ad_bot init если нужно
-try:
-    # news_bot.db.database.init_db() уже вызывается при импорте модуля news_bot.db.database
-    pass
-except Exception:
-    pass
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 async def main():
-    logging.info("Инициализация баз данных...")
+    logger.info("Запуск ботов...")
+    
     try:
+        # Импортируем и инициализируем ad_bot
+        from ad_bot.models import init_db as init_ad_db
+        from ad_bot.loader import dp as ad_dp, bot as ad_bot
+        import ad_bot.handlers  # регистрируем хэндлеры
+        
         init_ad_db()
+        logger.info("Ad bot инициализирован")
     except Exception as e:
-        logging.warning("Не удалось явно инициализировать ad_bot DB: %s", e)
+        logger.error(f"Ошибка инициализации ad_bot: {e}")
+        return
 
-    # запустим фоновые таски для news_bot
     try:
-        asyncio.create_task(news_main.fetch_feeds())
-        asyncio.create_task(news_main.post_ads())
+        # Импортируем и инициализируем news_bot
+        from news_bot.db.database import init_db as init_news_db
+        from news_bot.main import dp as news_dp, bot as news_bot, fetch_feeds, post_ads
+        
+        init_news_db()
+        logger.info("News bot инициализирован")
     except Exception as e:
-        logging.warning("Не удалось запустить фоновые задачи news_bot: %s", e)
+        logger.error(f"Ошибка инициализации news_bot: {e}")
+        return
 
-    logging.info("Старт polling для обоих ботов...")
+    # Запускаем фоновые задачи для news_bot
+    background_tasks = []
+    try:
+        background_tasks.append(asyncio.create_task(fetch_feeds()))
+        background_tasks.append(asyncio.create_task(post_ads()))
+        logger.info("Фоновые задачи news_bot запущены")
+    except Exception as e:
+        logger.warning(f"Не удалось запустить фоновые задачи: {e}")
+
+    # Запускаем polling для обоих ботов
+    logger.info("Старт polling для обоих ботов...")
+    
     tasks = [
-        asyncio.create_task(news_main.dp.start_polling(news_main.bot, skip_updates=False)),
-        asyncio.create_task(_ad_handlers.dp.start_polling(_ad_handlers.bot, skip_updates=False))
+        asyncio.create_task(news_dp.start_polling(news_bot, skip_updates=True)),
+        asyncio.create_task(ad_dp.start_polling(ad_bot, skip_updates=True))
     ]
 
-    await asyncio.gather(*tasks)
+    try:
+        await asyncio.gather(*tasks)
+    except Exception as e:
+        logger.error(f"Ошибка в работе ботов: {e}")
+    finally:
+        # Отменяем все задачи при завершении
+        for task in tasks + background_tasks:
+            task.cancel()
+        
+        # Ждем завершения всех задач
+        await asyncio.gather(*tasks, *background_tasks, return_exceptions=True)
+        
+        # Закрываем сессии ботов
+        await ad_bot.session.close()
+        await news_bot.session.close()
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
     asyncio.run(main())

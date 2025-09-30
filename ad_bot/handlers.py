@@ -1,4 +1,4 @@
-# ad_bot/handlers.py
+# В начале файла ad_bot/handlers.py исправьте импорты:
 import logging
 import json
 from aiogram import F
@@ -9,10 +9,10 @@ from aiogram.types import (
 )
 from aiogram.methods import AnswerPreCheckoutQuery
 
-# относительные импорты
-from .loader import dp, bot
-from .config import PROVIDER_TOKEN, CURRENCY, PRICE_PER_MONTH_RUB
-from .models import Order, init_db, db
+# Исправленные импорты - используем абсолютные пути
+from ad_bot.loader import dp, bot
+from ad_bot.config import PROVIDER_TOKEN, CURRENCY, PRICE_PER_MONTH_RUB
+from ad_bot.models import Order, init_db, db
 
 # --- далее ваш существующий код без изменений ---
 # клавиатура с Web App кнопкой

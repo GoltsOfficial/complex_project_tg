@@ -1,28 +1,40 @@
-# run_bots.py - Простой загрузчик
 import subprocess
 import sys
 import time
+import signal
 
 print("🚀 Запускаю ботов...")
 
-# Запускаем news_bot
+processes = []
+
 print("🤖 Запускаю News Bot...")
 news_process = subprocess.Popen([sys.executable, "news_bot/main.py"])
+processes.append(news_process)
 
-# Ждем немного перед запуском второго бота
 time.sleep(3)
 
-# Запускаем ad_bot
-print("🤖 Запускаю Ad Bot...")  
+print("🤖 Запускаю Ad Bot...")
 ad_process = subprocess.Popen([sys.executable, "ad_bot/main.py"])
+processes.append(ad_process)
 
 print("🎉 Все боты запущены!")
 
-# Бесконечный цикл чтобы главный процесс не завершался
+def signal_handler(sig, frame):
+    print("\n🛑 Останавливаю ботов...")
+    for process in processes:
+        process.terminate()
+    for process in processes:
+        process.wait()
+    print("✅ Все боты остановлены")
+    sys.exit(0)
+
+signal.signal(signal.SIGINT, signal_handler)
+
 try:
     while True:
-        time.sleep(1)
+        for i, process in enumerate(processes):
+            if process.poll() is not None:
+                print(f"⚠️ Процесс {i+1} неожиданно завершился")
+        time.sleep(5)
 except KeyboardInterrupt:
-    print("🛑 Останавливаю ботов...")
-    news_process.terminate()
-    ad_process.terminate()
+    signal_handler(None, None)

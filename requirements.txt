@@ -1,5 +1,5 @@
-aiogram~=3.17
+aiogram
 peewee~=3.16
 python-dotenv~=1.0.0
-feedparser~=6.0.10
+feedparser~=6.0.11
 aiohttp~=3.9.0
